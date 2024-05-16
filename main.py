@@ -10,3 +10,7 @@ class Currency:
 class Convertor(Currency):
   def Convert():
     return "Converting is on the process"
+# Converting EUR to USD class
+class EUR_Conversion(Convertor):
+  pass 
+  
