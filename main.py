@@ -8,7 +8,7 @@ class Currency:
     return "This is just for test and returns Main Class"
 # inhereted from main class
 class Convertor(Currency):
-  def Convert():
+  def Convert(self):
     return "Converting is on the process"
 # Converting EUR to USD class
 class EUR_Conversion(Convertor):
