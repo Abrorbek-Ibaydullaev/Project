@@ -12,5 +12,8 @@ class Convertor(Currency):
     return "Converting is on the process"
 # Converting EUR to USD class
 class EUR_Conversion(Convertor):
-  pass 
+  base_rate = 1.08
+  def Convert(self,amount):
+    return self.amount*EUR_Conversion.base_rate
+    
   
