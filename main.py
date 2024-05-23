@@ -15,8 +15,7 @@ class Currency:
     if amount < 0:
       raise ValueError("Amount cannot be negative.")
     self._amount = amount
-  #  Overloaded method to convert the currency to another type.
-  # This version raises an error if target is neither a Currency object nor a string.
+  #  Overloaded method to convert the currency to another type.This version raises an error if target is neither a Currency object nor a string.
   @dispatch(object)
   def convert_to(self,target):
     raise TypeError("Target must be a Currency object or a string")
@@ -42,7 +41,21 @@ class Currency:
   def __str__(self):
     # String representation of the currency amount.
     return f"{self._amount:.0f} {self.__class__.__name__}"
+  
+ # Subclass for USD currency.
+class USD(Currency):
+  def __init__(self,amount):
+    # Initializing with the base class constructor.
+    super().__init__(amount)
     
+  def _convert_to_currency(self, target_currency):
+    # Conversion logic from USD to other currencies.
+    if isinstance(target_currency,EUR):
+      return self._amount * 0.85
+    elif isinstance(target_currency,GBP):
+      return self._amount * 0.75
+    else:
+      return super()._convert_to_currency(target_currency)
     
     
     
