@@ -72,7 +72,7 @@ class EUR(Currency):
     else:
       return super()._convert_to_currency(target_currency)
   
-  def _convert_to_currency(self,currency_code):
+  def _convert_to_currency_code(self, currency_code):
     # Conversion logic from EUR to currencies identified by a string.
     if currency_code == 'USD':
       return self._amount * 1.18
