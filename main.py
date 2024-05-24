@@ -42,7 +42,7 @@ class Currency:
     # String representation of the currency amount.
     return f"{self._amount:.0f} {self.__class__.__name__}"
   
- # Subclass for USD currency.
+# Subclass for USD currency.
 class USD(Currency):
   def __init__(self,amount):
     # Initializing with the base class constructor.
@@ -56,6 +56,35 @@ class USD(Currency):
       return self._amount * 0.75
     else:
       return super()._convert_to_currency(target_currency)
+
+# Subclass for EUR currency.
+class EUR(Currency):
+  def __init__(self,amount):
+    # Initializing with the base class constructor.
+    super().__init__(amount)
+    
+  def _convert_to_currency(self, target_currency):
+    # Conversion logic from EUR to other currencies.
+    if isinstance(target_currency,USD):
+      return self._amount * 1.18
+    elif isinstance(target_currency,GBP):
+      return self._amount * 0.88
+    else:
+      return super()._convert_to_currency(target_currency)
+  
+  def _convert_to_currency(self,currency_code):
+    # Conversion logic from EUR to currencies identified by a string.
+    if currency_code == 'USD':
+      return self._amount * 1.18
+    elif currency_code == 'GBP':
+      return self._amount * 0.88
+    else:
+      raise ValueError('Conversion rate not available')
+
+# Subclass for GBP currency.
+class GBP(Currency):
+  pass
+
     
     
     
