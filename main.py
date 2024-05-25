@@ -56,6 +56,15 @@ class USD(Currency):
       return self._amount * 0.75
     else:
       return super()._convert_to_currency(target_currency)
+  
+  def _convert_to_currency_code(self, currency_code):
+    # Conversion logic from USD to currencies identified by a string.
+    if currency_code == 'EUR':
+      return self._amount * 0.85
+    elif currency_code == 'GBP':
+      return self._amount * 0.75
+    else:
+      raise ValueError("Conversion rate not available")
 
 # Subclass for EUR currency.
 class EUR(Currency):
@@ -83,8 +92,35 @@ class EUR(Currency):
 
 # Subclass for GBP currency.
 class GBP(Currency):
+  def __init__(self, amount):
+    # Initializing with the base class constructor.
+    super().__init__(amount)
+  
+  def _convert_to_currency(self, target_currency):
+    # Conversion logic from GBP to other currencies.
+    if isinstance(target_currency, USD):
+      return self._amount * 1.33
+    elif isinstance(target_currency, EUR):
+      return self._amount *1.14
+    else:
+      return super()._convert_to_currency(target_currency)
+  
+  def _convert_to_currency_code(self,currency_code):
+    # Conversion logic from GBP to currencies identified by a string
+    if currency_code == 'USD':
+      return self._amount * 1.33
+    elif currency_code == 'EUR':
+      return self._amount * 1.14
+    else:
+      raise ValueError("Conversion rate not available")
+
+
+# Custom exception class for currency-related errors.
+class CurrencyError(Exception):
+  """Base class for other exceptions"""
   pass
 
+# Custom exception for handling negative
     
     
     
