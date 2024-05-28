@@ -114,38 +114,55 @@ class GBP(Currency):
     else:
       raise ValueError("Conversion rate not available")
 
+# Class for converting between different currencies.
+class CurrencyConverter:
+  @staticmethod
+  def convert(from_currency, to_currency):
+    # Convert from one currency to another.
+    if isinstance(to_currency,Currency):
+      converted_amount = from_currency.convert_to(to_currency)
+      # Create a new instance of the target currency type.
+      return to_currency.__class__(converted_amount)
+    elif isinstance(to_currency,str):
+      converted_amount = from_currency.convert_to(to_currency)
+      # Return a new instance of the target currency identified by the string.
+      if to_currency == 'USD':
+        return USD(converted_amount)
+      elif to_currency == 'EUR':
+        return EUR(converted_amount)
+      elif to_currency == 'GBP':
+        return GBP(converted_amount)
+      else:
+        raise ValueError("Uknown currency code")
+    else:
+      raise TypeError("to_currency must be a Currency object or a string")
+
+# Class for performing operations on currency objects.
+class CurrencyOperations:
+  @staticmethod
+  def add(c1,c2):
+    # Add 2 currencies of the sum type.
+    if c1.__class__ == c2.__class__:
+      # Create a new instance of the same type with the summed amount.
+      return c1.__class__(c1.get_amount()+c2.get_amount())
+    else:
+      raise ValueError("Cannot add different currencies directly. Convert them to the same type first")
+    
+  @staticmethod
+  def subtract(c1,c2):
+    # subtract 2 currencies of the same type.
+    if c1.__class__ ==c2.__class__:
+      # Create a new instance of the same type with the subtracted amount.
+      return c1.__class__(c1.get_amount()-c2.get_amount())
+    else:
+      raise ValueError("Cannot subtract different currencies directly. Convert them to the same type first")
 
 # Custom exception class for currency-related errors.
 class CurrencyError(Exception):
   """Base class for other exceptions"""
   pass
 
-# Custom exception for handling negative
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-# # inhereted from main class
-# class Convertor(Currency):
-#   def Convert(self):
-#     return "Converting is on the process"
-# # Converting EUR to USD class
-# class EUR_Conversion(Convertor):
-#   base_rate = 1.08
-#   def Convert(self,amount):
-#     return self.amount*EUR_Conversion.base_rate
-    
-  
+# Custom exception for handling negative amounts.
+class NegativeAmountError(CurrencyError):
+  """Raised when the amount is negative"""
+  pass
