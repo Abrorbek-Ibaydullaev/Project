@@ -1,8 +1,4 @@
-# Importing the dispatch decorator from multipledispatch to enable method overloading.
-from multipledispatch import dispatch
-
 # Defining a base class for Currency.
-
 
 class Currency:
     def __init__(self, amount):
@@ -18,22 +14,15 @@ class Currency:
         if amount < 0:
             raise ValueError("Amount cannot be negative.")
         self._amount = amount
-
-    # Overloaded method to convert the currency to another type. This version raises an error if target is neither a Currency object nor a string.
-    @dispatch(object)
-    def convert_to(self, target):
-        raise TypeError("Target must be a Currency object or a string")
-
-    # Overloaded method to convert to another Currency object.
-    @dispatch(object)
-    def convert_to(self, target: 'Currency'):
-        return self._convert_to_currency(target)
-
-    # Overloaded method to convert to a currency identified by a string.
-    @dispatch(object)
-    def convert_to(self, target: str):
-        return self._convert_to_currency_code(target)
-
+    # Convert_to method could be considered to exhibit a form of overloading behavior
+    def convert_to(self,target):
+        if isinstance(target,Currency):
+            return self._convert_to_currency(target)
+        elif isinstance(target,str):
+            return self._convert_to_currency_code(target)
+        else:
+            raise TypeError("Target must be a Currency object or string")
+        
     # Placeholder method to be implemented in subclasses for converting to another Currency object.
     def _convert_to_currency(self, target_currency):
         raise NotImplementedError("Subclasses should implement this method")
