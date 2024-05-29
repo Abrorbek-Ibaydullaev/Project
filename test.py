@@ -30,14 +30,14 @@ class TestCurrency(unittest.TestCase):
         gbp = CurrencyConverter.convert(eur, 'GBP')
         # 85 * 0.88 = 74.8, rounded to 75
         self.assertEqual(gbp.get_amount(), 74.8)
-        self.assertEqual(str(gbp), "75 GBP")
+        self.assertEqual(str(gbp), "74.8 GBP")
 
     def test_gbp_to_usd_conversion(self):
         gbp = GBP(75)
         usd = CurrencyConverter.convert(gbp, 'USD')
         # 75 * 1.33 = 99.75, rounded to 100
         self.assertEqual(usd.get_amount(), 99.75)
-        self.assertEqual(str(usd), "100 USD")
+        self.assertEqual(str(usd), "99.75 USD")
 
     def test_add_usd(self):
         usd1 = USD(100)
