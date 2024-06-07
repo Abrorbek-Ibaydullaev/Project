@@ -36,32 +36,58 @@ class Currency:
         return f"{self._amount:.0f} {self.__class__.__name__}"
 
 
-# Subclass for USD currency.
-class USD(Currency):
-    def __init__(self, amount):
-        # Initializing with the base class constructor.
+class UniversalCurrenyConverter(Currency):
+    def __init__(self, amount, currency_code, exchange_rates=None):
         super().__init__(amount)
-
+        self.currency_code = currency_code
+        if exchange_rates is None:
+            self.exchange_rates = {
+                "USD":1.0,
+                "EUR":0.85,
+                "JPY":110.0,
+                "GBP":0.75,
+            }
+        else:
+            self.exchange_rates = exchange_rates
+            
+        if currency_code not in self.exchange_rates:
+            raise ValueError(f"Unsupported currency code: {currency_code}")
+        
+    def add_currency(self, currency_code,exchange_rate):
+        if exchange_rate <= 0:
+            raise ValueError("Exchange rate must be positive.")
+        self.exchange_rates[currency_code] = exchange_rate
+        print(
+            f"Added curreny {currency_code} with exchange rate {exchange_rate}. Current exchange rates: {self.exchange_rates}")
+        
+    def update_exchange_rate(self, currency_code, exchange_rate):
+        if currency_code not in self.exchange_rates:
+            raise ValueError(f"Currency code {currency_code} does not exist.")
+        if exchange_rate <= 0:
+            raise ValueError("Exchange rate must be positive.")
+        self.exchange_rates[currency_code] = exchange_rate
+        print(
+            f"Updated exchange rate for {currency_code} to {exchange_rate}. Current exchange rates: {self.exchange_rates}")
+        
     def _convert_to_currency(self, target_currency):
-        # Conversion logic from USD to other currencies.
-        if isinstance(target_currency, EUR):
-            return self._amount * 0.85
-        elif isinstance(target_currency, GBP):
-            return self._amount * 0.75
-        else:
-            return super()._convert_to_currency(target_currency)
+        if not isinstance(target_currency,UniversalCurrenyConverter):
+            raise ValueError(
+                "Target currency must be an instance of UniversalCurrencyConverter")
+        base_amount = self._amount / self.exchange_rates[self.currency_code]
+        target_amount = base_amount * \
+            self.exchange_rates[target_currency.currency_code]
+        return UniversalCurrenyConverter(target_amount,target_currency.currency_code,self.exchange_rates)
+    
+    def _convert_to_currency_code(self,currency_code):
+        if currency_code not in self.exchange_rates:
+            raise ValueError(f"Unsuppoted currency code: {currency_code}")
+        base_amount = self._amount / self.exchange_rates[self.currency_code]
+        target_amount = base_amount * self.exchange_rates[currency_code]
+        return UniversalCurrenyConverter(target_amount,currency_code, self.exchange_rates)
+    
+    def __str__(self):
+        return f"{self._amount:.2f} {self.currency_code}"
 
-    def _convert_to_currency_code(self, currency_code):
-        # Conversion logic from USD to currencies identified by a string.
-        if currency_code == 'EUR':
-            return self._amount * 0.85
-        elif currency_code == 'GBP':
-            return self._amount * 0.75
-        else:
-            raise ValueError("Conversion rate not available")
-
-
-# Subclass for EUR currency.
 class EUR(Currency):
     def __init__(self, amount):
         # Initializing with the base class constructor.
