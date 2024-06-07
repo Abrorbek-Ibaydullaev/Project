@@ -88,108 +88,52 @@ class UniversalCurrenyConverter(Currency):
     def __str__(self):
         return f"{self._amount:.2f} {self.currency_code}"
 
-class EUR(Currency):
-    def __init__(self, amount):
-        # Initializing with the base class constructor.
-        super().__init__(amount)
-
-    def _convert_to_currency(self, target_currency):
-        # Conversion logic from EUR to other currencies.
-        if isinstance(target_currency, USD):
-            return self._amount * 1.18
-        elif isinstance(target_currency, GBP):
-            return self._amount * 0.88
-        else:
-            return super()._convert_to_currency(target_currency)
-
-    def _convert_to_currency_code(self, currency_code):
-        # Conversion logic from EUR to currencies identified by a string.
-        if currency_code == 'USD':
-            return self._amount * 1.18
-        elif currency_code == 'GBP':
-            return self._amount * 0.88
-        else:
-            raise ValueError("Conversion rate not available")
-
-
-# Subclass for GBP currency.
-class GBP(Currency):
-    def __init__(self, amount):
-        # Initializing with the base class constructor.
-        super().__init__(amount)
-
-    def _convert_to_currency(self, target_currency):
-        # Conversion logic from GBP to other currencies.
-        if isinstance(target_currency, USD):
-            return self._amount * 1.33
-        elif isinstance(target_currency, EUR):
-            return self._amount * 1.14
-        else:
-            return super()._convert_to_currency(target_currency)
-
-    def _convert_to_currency_code(self, currency_code):
-        # Conversion logic from GBP to currencies identified by a string.
-        if currency_code == 'USD':
-            return self._amount * 1.33
-        elif currency_code == 'EUR':
-            return self._amount * 1.14
-        else:
-            raise ValueError("Conversion rate not available")
-
-
-# Class for converting between different currencies.
-class CurrencyConverter:
-    @staticmethod
-    def convert(from_currency, to_currency):
-        # Convert from one currency to another.
-        if isinstance(to_currency, Currency):
-            converted_amount = from_currency.convert_to(to_currency)
-            # Create a new instance of the target currency type.
-            return to_currency.__class__(converted_amount)
-        elif isinstance(to_currency, str):
-            converted_amount = from_currency.convert_to(to_currency)
-            # Return a new instance of the target currency identified by the string.
-            if to_currency == 'USD':
-                return USD(converted_amount)
-            elif to_currency == 'EUR':
-                return EUR(converted_amount)
-            elif to_currency == 'GBP':
-                return GBP(converted_amount)
-            else:
-                raise ValueError("Unknown currency code")
-        else:
-            raise TypeError(
-                "to_currency must be a Currency object or a string")
-
-
-# Class for performing operations on currency objects.
-class CurrencyOperations:
-    @staticmethod
-    def add(c1, c2):
-        # Add two currencies of the same type.
-        if c1.__class__ == c2.__class__:
-            # Create a new instance of the same type with the summed amount.
-            return c1.__class__(c1.get_amount() + c2.get_amount())
-        raise ValueError(
-            "Cannot add different currencies directly. Convert them to the same type first.")
-
-    @staticmethod
-    def subtract(c1, c2):
-        # Subtract two currencies of the same type.
-        if c1.__class__ == c2.__class__:
-            # Create a new instance of the same type with the subtracted amount.
-            return c1.__class__(c1.get_amount() - c2.get_amount())
-        raise ValueError(
-            "Cannot subtract different currencies directly. Convert them to the same type first.")
-
-
-# Custom exception class for currency-related errors.
-class CurrencyError(Exception):
-    """Base class for other exceptions"""
-    pass
-
-
-# Custom exception for handling negative amounts.
-class NegativeAmountError(CurrencyError):
-    """Raised when the amount is negative"""
-    pass
+class Transaction:
+    def __init__(self,amount,currency_code):
+        self.amount = amount
+        self.currency_code = currency_code
+        
+    def send_money(self,recipient,amount):
+        if amount > self.amount:
+            raise ValueError("Insufficient funds.")
+        self.amount -= amount
+        recipient.recive_money(amount)
+        print(f"Sent {amount} {self.currency_code} to {recipient}")
+        
+    def receive_money(self,amount):
+        self.amount += amount
+        print(f"Received {amount} {self.currency_code}")
+    
+    def __str__(self) -> str:
+        return f"Transaction (amount = {self.amount}, currency_code={self.currency_code})"
+    
+class InternalTransaction(Transaction):
+    def __init__(self,amount,currency_code,exchange_rates):
+        super().__init__(amount,currency_code)
+        self.exchange_rates = exchange_rates
+        
+    def send_money(self, recipient, amount,recipient_currency_code):
+        if amount > self.amount:
+            raise ValueError("Insufficient funds.")
+        self.amount -= amount
+        converted_amount = self.convert_currency(
+            amount, self.currency_code, recipient_currency_code)
+        print(
+            f"Sent {amount} {self.currency_code} ({converted_amount:.2f} {recipient_currency_code}) to {recipient}")
+        
+    def receive_money(self, amount,currency_code):
+        converted_amount = self.convert_currency(
+            amount,currency_code,self.currency_code)
+        self.amount += converted_amount
+        print(
+            f"Received {amount} {currency_code} ({converted_amount:.2f} {self.currency_code})")
+    
+    def convert_currency(self, amount, from_currency, to_currency):
+        if from_currency not in self.exchange_rates or to_currency not in self.exchange_rates:
+            raise ValueError("Unsupprted currency code.")
+        base_amount = amount / self.exchange_rates[from_currency]
+        target_amount = base_amount * self.exchange_rates[to_currency]
+        return target_amount
+    
+    def __str__(self) -> str:
+        return f"International Transaction (amount={self.amount}, currency_code={self.currency_code}, exchange_rates={self.exchange_rates})"
