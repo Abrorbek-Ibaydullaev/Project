@@ -1,74 +1,61 @@
 import unittest
-from main import USD, EUR, GBP, CurrencyConverter, CurrencyOperations
+from main import *
+# Currency class tests
 
 
 class TestCurrency(unittest.TestCase):
-
-    def test_usd_creation(self):
-        usd = USD(100)
-        self.assertEqual(usd.get_amount(), 100)
-        self.assertEqual(str(usd), "100 USD")
-
-    def test_eur_creation(self):
-        eur = EUR(85)
-        self.assertEqual(eur.get_amount(), 85)
-        self.assertEqual(str(eur), "85 EUR")
-
-    def test_gbp_creation(self):
-        gbp = GBP(75)
-        self.assertEqual(gbp.get_amount(), 75)
-        self.assertEqual(str(gbp), "75 GBP")
-
-    def test_usd_to_eur_conversion(self):
-        usd = USD(100)
-        eur = CurrencyConverter.convert(usd, 'EUR')
-        self.assertEqual(eur.get_amount(), 85)
-        self.assertEqual(str(eur), "85 EUR")
-
-    def test_eur_to_gbp_conversion(self):
-        eur = EUR(85)
-        gbp = CurrencyConverter.convert(eur, 'GBP')
-        # 85 * 0.88 = 74.8, rounded to 75
-        self.assertEqual(gbp.get_amount(), 74.8)
-        self.assertEqual(str(gbp), "74.8 GBP")
-
-    def test_gbp_to_usd_conversion(self):
-        gbp = GBP(75)
-        usd = CurrencyConverter.convert(gbp, 'USD')
-        # 75 * 1.33 = 99.75, rounded to 100
-        self.assertEqual(usd.get_amount(), 99.75)
-        self.assertEqual(str(usd), "99.75 USD")
-
-    def test_add_usd(self):
-        usd1 = USD(100)
-        usd2 = USD(50)
-        added_usd = CurrencyOperations.add(usd1, usd2)
-        self.assertEqual(added_usd.get_amount(), 150)
-        self.assertEqual(str(added_usd), "150 USD")
-
-    def test_subtract_usd(self):
-        usd1 = USD(100)
-        usd2 = USD(30)
-        subtracted_usd = CurrencyOperations.subtract(usd1, usd2)
-        self.assertEqual(subtracted_usd.get_amount(), 70)
-        self.assertEqual(str(subtracted_usd), "70 USD")
-
-    def test_negative_amount_error(self):
+    def test_initialization_and_amount_setting(self):
+        c = Currency(100)
+        self.assertEqual(c.get_amount(),100)
+    
+    def test_amount_setting_with_invalid_values(self):
         with self.assertRaises(ValueError):
-            USD(-100)
+            Currency(-100)
+    
+    def test_conversion_methods_raise_not_implemented_error(self):
+        c = Currency(100)
+        with self.assertRaises(NotImplementedError):
+            c._convert_to_currency(Currency(100))
+        with self.assertRaises(NotImplementedError):
+            c._convert_to_currency("USD")
 
-    def test_different_currency_addition(self):
-        usd = USD(100)
-        eur = EUR(85)
-        with self.assertRaises(ValueError):
-            CurrencyOperations.add(usd, eur)
+# Universal currency converter class
 
-    def test_different_currency_subtraction(self):
-        usd = USD(100)
-        eur = EUR(85)
-        with self.assertRaises(ValueError):
-            CurrencyOperations.subtract(usd, eur)
-
-
-if __name__ == '__main__':
+class TestUniversalCurrencyConverter(unittest.TestCase):
+    def test_initialization_with_default_exchange_rate(self):
+        uc = UniversalCurrenyConverter(100,"USD")
+        self.assertEqual(uc.get_amount(),100)
+        self.assertEqual(uc.currency_code,"USD")
+        self.assertIn("USD",uc.exchange_rates)
+        
+    def test_initialization_with_custom_exchange_rates(self):
+        custom_rates = {"USD":1.0,"CAD":1.25}
+        uc = UniversalCurrenyConverter(100, "USD", custom_rates)
+        self.assertEqual(uc.exchange_rates,custom_rates)
+    
+    def test_add_currency(self):
+        uc = UniversalCurrenyConverter(100,"USD")
+        uc.add_currency("CAD",1.25)
+        self.assertIn("CAD",uc.exchange_rates)
+        self.assertEqual(uc.exchange_rates["CAD"],1.25)
+        
+    def test_update_exchange_rates(self):
+        uc = UniversalCurrenyConverter(100,"USD")
+        uc.update_exchange_rate("EUR",0.9)
+        self.assertEqual(uc.exchange_rates["EUR"],0.9)
+        
+    def test_convert_to_currency(self):
+        uc1 = UniversalCurrenyConverter(100,"USD")
+        uc2 = UniversalCurrenyConverter(0,"EUR")
+        converted = uc1._convert_to_currency(uc2)
+        self.assertEqual(converted.get_amount(),85.0)
+        self.assertEqual(converted.currency_code,"EUR")
+    
+    def test_convert_to_currency_code(self):
+        uc = UniversalCurrenyConverter(100,"USD")
+        converted = uc._convert_to_currency_code("EUR")
+        self.assertEqual(converted.get_amount(),85.0)
+        self.assertEqual(converted.currency_code,"EUR")
+        
+if __name__ == "__main__":
     unittest.main()
