@@ -97,7 +97,7 @@ class Transaction:
         if amount > self.amount:
             raise ValueError("Insufficient funds.")
         self.amount -= amount
-        recipient.recive_money(amount)
+        recipient.receive_money(amount)
         print(f"Sent {amount} {self.currency_code} to {recipient}")
         
     def receive_money(self,amount):
@@ -107,7 +107,7 @@ class Transaction:
     def __str__(self) -> str:
         return f"Transaction (amount = {self.amount}, currency_code={self.currency_code})"
     
-class InternalTransaction(Transaction):
+class InternationalTransaction(Transaction):
     def __init__(self,amount,currency_code,exchange_rates):
         super().__init__(amount,currency_code)
         self.exchange_rates = exchange_rates

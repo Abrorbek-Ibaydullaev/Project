@@ -56,6 +56,44 @@ class TestUniversalCurrencyConverter(unittest.TestCase):
         converted = uc._convert_to_currency_code("EUR")
         self.assertEqual(converted.get_amount(),85.0)
         self.assertEqual(converted.currency_code,"EUR")
+
+# Transaction class tests
+class TestTransaction(unittest.TestCase):
+    def test_initialization(self):
+        t = Transaction(100,"USD")
+        self.assertEqual(t.amount,100)
+        self.assertEqual(t.currency_code,"USD")
         
+    def test_send_and_recieve_money(self):
+        t1 = Transaction(100,"USD")
+        t2 = Transaction(50,"USD")
+        t1.send_money(t2,30)
+        self.assertEqual(t1.amount,70)
+        self.assertEqual(t1.amount,70)
+        
+# International Transaction class tests 
+
+class TestInternationalTransaction(unittest.TestCase):
+    def test_initialization(self):
+        rates = {"USD":1.0,"EUR":0.85,"JYP":110.0,"GBP":0.75}
+        it = InternationalTransaction(100,"USD",rates)
+        self.assertEqual(it.amount,100)
+        self.assertEqual(it.currency_code,"USD")
+        self.assertEqual(it.exchange_rates,rates)
+        
+    def test_send_and_recieve_money_with_conversion(self):
+        rates = {"USD":1.0,"EUR":0.85,"JYP":110.0,"GBP":0.75}
+        it1 = InternationalTransaction(100,"USD",rates)
+        it2 = InternationalTransaction(0,"EUR",rates)
+        it1.send_money(it2,50,"EUR")
+        self.assertEqual(it1.amount,50)        
+        self.assertEqual(it2.amount,0)
+    
+    def test_convert_currency(self):
+        rates = {"USD":1.0,"EUR":0.85,"JYP":110.0,"GBP":0.75}
+        it = InternationalTransaction(100,"USD",rates)
+        converted_amount = it.convert_currency(100,"USD","EUR")
+        self.assertEqual(converted_amount,85.0)
+                
 if __name__ == "__main__":
     unittest.main()
